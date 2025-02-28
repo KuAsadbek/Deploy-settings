@@ -298,14 +298,14 @@ server {
 # How need you
 server {
     listen 443 ssl http2;
-    server_name pyco.uz www.pyco.uz;
+    server_name name_site.uz www.name_site.uz;
 
-    ssl_certificate /etc/letsencrypt/live/pyco.uz/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/pyco.uz/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/name_site.uz/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/name_site.uz/privkey.pem;
 
     location / {
         include proxy_params;
-        proxy_pass http://unix:/root/Api_Ardent/set_app/set_app.sock;
+        proxy_pass http://unix:/home/project_name/set_app.sock;
         proxy_read_timeout 60;
         proxy_connect_timeout 60;
         proxy_send_timeout 60;
@@ -381,27 +381,53 @@ sudo chgrp www-data /home/ubuntu/
 
 ```bash
 server {
-    listen 443 ssl http2;
-    server_name pyco.uz www.pyco.uz;
+    listen 80;
+    server_name name_site.uz www.name_site.uz;
+    return 301 https://name_site.uz$request_uri;
+}
 
-    ssl_certificate /etc/letsencrypt/live/pyco.uz/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/pyco.uz/privkey.pem;
+server {
+    listen 443 ssl;
+    server_name name_site.uz www.name_site.uz;
+
+    ssl_certificate /etc/letsencrypt/live/name_site.uz/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/name_site.uz/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000; # Если у тебя Django/Uvicorn, измени порт
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
 ```
 Эти параметры указывают на путь к SSL-сертификату и закрытому ключу.
 
 Как получить Сертификат HTTPS:
 Если сертификат отсутствует, его можно получить с помощью Certbot:
-
+ 🔹 Шаг 1: Установка Certbot
+ 
 ```bash
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d pyco.uz -d www.pyco.uz
+sudo apt update
+sudo apt install certbot python3-certbot-nginx -y
 ```
+
+ 🔹 Шаг 2: Получение SSL-сертификата
+
+ ```bash
+sudo certbot --nginx -d name_site.com -d www.name_site.com
+ ```
+
+🔹 Шаг 3: Проверка и автоматическое обновление
+Запусти тестовый запуск обновления:
 
 Для автоматического обновления сертификата:
 
 ```bash
 sudo certbot renew --dry-run
 ```
+
+Если все ок, Certbot сам будет обновлять сертификат.
 
 Исправление CORS в Nginx
 
