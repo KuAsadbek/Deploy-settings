@@ -462,6 +462,25 @@ location /media/ {
 ```
 Эти настройки позволяют фронтенд-приложениям запрашивать файлы из /static/ и /media/ без проблем с CORS.
 
+# Defoult start
+
+```bash
+gunicorn --workers 3 --bind unix:/root/food/set_app/set_app.sock set_app.wsgi:application
+```
+
+# Start unicorn
+```bash
+gunicorn --workers 3 --bind unix:/root/Api_Ardent/set_app/set_app.sock set_app.asgi:application -k uvicorn.workers.UvicornWorker
+websocket run
+```
+
+# Start stop
+
+```bash
+ps aux | grep gunicorn
+pkill -9 gunicorn
+```
+
 Завершение настройки
 Откройте в браузере домен или IP-адрес сервера для проверки развертывания проекта. Рекомендуется также настроить SSL-сертификат (например, с помощью <a href="https://letsencrypt.org/">Let's Encrypt</a>) для обеспечения безопасности соединения.
 
