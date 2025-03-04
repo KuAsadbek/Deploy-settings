@@ -504,6 +504,11 @@ pip install uvicorn
 
 ```bash
 gunicorn --workers 3 --bind unix:/root/Api_Ardent/set_app/set_app.sock set_app.asgi:application -k uvicorn.workers.UvicornWorker
+```
+
+# Websocket
+
+```bash
 websocket run
 ```
 
