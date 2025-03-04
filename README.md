@@ -494,7 +494,14 @@ location /media/ {
 gunicorn --workers 3 --bind unix:/root/food/set_app/set_app.sock set_app.wsgi:application
 ```
 
+# Install unicorn
+
+```bash
+pip install uvicorn
+```
+
 # Start unicorn
+
 ```bash
 gunicorn --workers 3 --bind unix:/root/Api_Ardent/set_app/set_app.sock set_app.asgi:application -k uvicorn.workers.UvicornWorker
 websocket run
