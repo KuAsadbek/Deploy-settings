@@ -382,22 +382,32 @@ sudo chgrp www-data /home/ubuntu/
 ```bash
 server {
     listen 80;
-    server_name name_site.uz www.name_site.uz;
-    return 301 https://name_site.uz$request_uri;
+    server_name testpost.uz www.testpost.uz;
+    return 301 https://$host$request_uri;  # Авто-редирект на HTTPS
 }
 
 server {
     listen 443 ssl;
-    server_name name_site.uz www.name_site.uz;
+    server_name testpost.uz www.testpost.uz;
 
-    ssl_certificate /etc/letsencrypt/live/name_site.uz/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/name_site.uz/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/testpost.uz/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/testpost.uz/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+
+    location /static/ {
+        alias /root/test_post/staticfiles/;
+    }
+
+    location /media/ {
+        alias /root/test_post/media/;
+    }
 
     location / {
-        proxy_pass http://127.0.0.1:8000; # Если у тебя Django/Uvicorn, измени порт
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        include proxy_params;
+        proxy_pass http://unix:/root/test_post/testpost.sock;
     }
 }
 ```
