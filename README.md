@@ -59,7 +59,7 @@ pip install gunicorn
 ```bash
 sudo apt update
 sudo apt upgrade
-sudo apt install -y python3-pip python-dev-is-python3 libpq-dev vim git htop postgresql postgresql-contrib nginx redis-server
+sudo apt install -y python3-pip python-dev-is-python3 libpq-dev vim git htop postgresql postgresql-contrib nginx redis-server python3.12-venv
 ```
 
 Настройка PostgreSQL
