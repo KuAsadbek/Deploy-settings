@@ -529,6 +529,10 @@ ps aux | grep gunicorn
 pkill -9 gunicorn
 ```
 
+```bash
+sudo rm /etc/nginx/sites-enabled/default
+```
+
 Завершение настройки
 Откройте в браузере домен или IP-адрес сервера для проверки развертывания проекта. Рекомендуется также настроить SSL-сертификат (например, с помощью <a href="https://letsencrypt.org/">Let's Encrypt</a>) для обеспечения безопасности соединения.
 
