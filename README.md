@@ -478,6 +478,15 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 ```
 
+Также в Media
+```bash
+location /media/ {
+    alias /root/test/media/;
+    add_header Access-Control-Allow-Origin *;
+}
+```
+после надо перезапустить ngx
+
 Для проверки Cors
 ```bash
 curl -i https://name_domen.uz/name_api/
