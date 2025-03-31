@@ -443,11 +443,12 @@ sudo certbot renew --dry-run
 
 Для разрешения запросов с определённых доменов используется настройка CORS. В конфигурации Nginx реализован динамический механизм установки заголовка Access-Control-Allow-Origin.
 
-Для Установить
+Нужно Утановить
 ```bash
 pip install django-cors-headers
 ```
 
+в settings.py
 ```bash
 
 INSTALLED_APPS = [
@@ -468,7 +469,7 @@ MIDDLEWARE = [
 CORS_ALLOW_ALL_ORIGINS = True
 ```
 
-Для органичение доступа
+Органичение доступа
 ```bash
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
@@ -493,8 +494,8 @@ sudo systemctl restart gunicorn
 ```
 
 Должно вывести 
-Access-Control-Allow-Origin: *
-Access-Control-Allow-Origin: http://localhost:3000
+- Access-Control-Allow-Origin: *
+- Access-Control-Allow-Origin: http://localhost:3000
 
 Основные CORS-настройки:
 
