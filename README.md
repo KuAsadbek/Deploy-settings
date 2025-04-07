@@ -368,9 +368,13 @@ sudo systemctl restart nginx
 6. Дать права доступа
 
 ```bash
-chmod g+x /home/ubuntu/
-chmod g+r /home/ubuntu/
-sudo chgrp www-data /home/ubuntu/
+chmod g+x /root/
+chmod g+r /root/
+sudo chgrp www-data /root/
+
+chmod g+x /root/
+chmod g+r /root/
+sudo chgrp www-data /root/
 ```
 
 Настройка HTTPS и исправление CORS в Nginx
@@ -427,6 +431,11 @@ sudo apt install certbot python3-certbot-nginx -y
  ```bash
 sudo certbot --nginx -d name_site.com -d www.name_site.com
  ```
+
+ 🔹 Шаг 3: Получение SSL-сертификата
+```bash
+sudo certbot --nginx -d crmbot.uz -d www.crmbot.uz --agree-tos --register-unsafely-without-email --non-interactive -v
+```
 
 🔹 Шаг 3: Проверка и автоматическое обновление
 Запусти тестовый запуск обновления:
