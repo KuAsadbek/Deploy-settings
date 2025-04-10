@@ -605,6 +605,14 @@ pkill -9 gunicorn
 sudo rm /etc/nginx/sites-enabled/default
 ```
 
+```bash
+# Установи максимальный размер загружаемого файла, например, до 100MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600
+
+client_max_body_size 100M;
+```
+
 Завершение настройки
 Откройте в браузере домен или IP-адрес сервера для проверки развертывания проекта. Рекомендуется также настроить SSL-сертификат (например, с помощью <a href="https://letsencrypt.org/">Let's Encrypt</a>) для обеспечения безопасности соединения.
 
