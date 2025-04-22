@@ -355,16 +355,13 @@ sudo ln -s /etc/nginx/sites-available/myproject /etc/nginx/sites-enabled
 ```
 
 4. Проверьте синтаксис конфигурации Nginx:
-
-```bash
-sudo nginx -t
-```
-
 5. Перезапустите Nginx:
 
 ```bash
+sudo nginx -t
 sudo systemctl restart nginx
 ```
+
 6. Дать права доступа
 
 ```bash
@@ -476,6 +473,28 @@ MIDDLEWARE = [
 Доступ для всех
 ```bash
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
 ```
 
 Органичение доступа
