@@ -610,7 +610,152 @@ gunicorn --workers 3 --bind unix:/root/Api_Ardent/set_app/set_app.sock set_app.a
 # Websocket
 
 ```bash
+pip install channels
+pip install daphne
+```
+
+```bash
+# settings
+ASGI_APPLICATION = 'your_project_name.asgi.application'
+
+# asgi.py
+import os
+import django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'set_app.settings')
+django.setup() 
+
+from django.core.asgi import get_asgi_application
+from channels.routing import ProtocolTypeRouter
+from django.urls import re_path
+from channels.routing import ProtocolTypeRouter, URLRouter
+from set_main import consumers
+
+websocket_urlpatterns = [
+    re_path(r"ws/chat/(?P<chat_id>\d+)/$", consumers.ChatConsumer.as_asgi()),
+]
+
+application = ProtocolTypeRouter({
+    "http": get_asgi_application(),
+    "websocket": URLRouter(websocket_urlpatterns)
+})
+
+# set_mian routing.py
+from django.urls import path
+from . import consumers
+
+websocket_urlpatterns = [
+    path("ws/some_path/", consumers.MyConsumer.as_asgi()),
+]
+
+# set_main consumers.py
+class ChatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.chat_id = self.scope['url_route']['kwargs']['chat_id']
+        self.room_group_name = f'chat_{self.chat_id}'
+
+        # ❗ Без проверки пользователя — WebSocket работает анонимно
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+
+    async def receive(self, text_data=None, bytes_data=None):
+        data = json.loads(text_data)
+        text = data.get('text', '')
+        sender_id = data.get('sender_id')  # ⚠️ Т.к. scope["user"] нет, берём из сообщения
+
+        if not sender_id:
+            return
+
+        message = await self.create_message(sender_id, text)
+
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'message': {
+                    'id': message.id,
+                    'text': message.text,
+                    'sender': sender_id,
+                    'created_at': str(message.created_at)
+                }
+            }
+        )
+
+# gunicorn 
+server {
+    server_name building.ardentsoft.uz;
+
+    client_max_body_size 50M;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+
+    location /static/ {
+        alias /root/building/staticfiles/;
+        add_header Access-Control-Allow-Origin "https://localhost:5173" always;
+        add_header Access-Control-Allow-Credentials "true" always;
+    }
+
+    location /media/ {
+        alias /root/building/media/;
+        add_header Access-Control-Allow-Origin "https://localhost:5173" always;
+        add_header Access-Control-Allow-Credentials "true" always;
+    }
+
+    # ✅ WebSocket — проксируем на Daphne (ASGI)
+    location /ws/ {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_read_timeout 86400;
+    }
+
+    # Основное Django-приложение (через unix socket)
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/root/building/set_app/set_app.sock;
+    }
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/building.ardentsoft.uz/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/building.ardentsoft.uz/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+}
+
+server {
+    if ($host = building.ardentsoft.uz) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    server_name building.ardentsoft.uz;
+    listen 80;
+    return 404; # managed by Certbot
+}
+```
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
 websocket run
+```bash
+DJANGO_SETTINGS_MODULE=set_app.settings daphne set_app.asgi:application
+```
+
+```bash
+wss://building.ardentsoft.uz/ws/chat/1/
 ```
 
 # Start stop
