@@ -758,6 +758,52 @@ DJANGO_SETTINGS_MODULE=set_app.settings daphne set_app.asgi:application
 wss://building.ardentsoft.uz/ws/chat/1/
 ```
 
+Websocket daphne with flatter 
+```bash
+
+# set_app/asgi.py
+import os
+import django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'set_app.settings')
+django.setup() 
+
+from django.core.asgi import get_asgi_application
+from channels.routing import ProtocolTypeRouter
+from django.urls import re_path
+from channels.routing import ProtocolTypeRouter, URLRouter
+from set_main import consumers
+from channels.auth import AuthMiddlewareStack
+
+websocket_urlpatterns = [
+    re_path(r"ws/chat/(?P<chat_id>\d+)/$", consumers.ChatConsumer.as_asgi()),
+]
+
+application = ProtocolTypeRouter({
+    "http": get_asgi_application(),
+    "websocket": AuthMiddlewareStack(
+        URLRouter(websocket_urlpatterns)
+    ),
+})
+
+
+# ngxs
+location /ws/ {
+    proxy_pass http://unix:/root/building/set_app/set_app.sock;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_read_timeout 86400;
+}
+
+sudo nginx -t       # проверяем конфигурацию
+sudo systemctl reload nginx
+
+# запуск
+daphne -u /root/building/set_app/set_app.sock set_app.asgi:application
+```
+
 # Start stop
 
 ```bash
