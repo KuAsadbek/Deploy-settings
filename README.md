@@ -802,6 +802,7 @@ sudo systemctl reload nginx
 
 # запуск
 daphne -u /root/building/set_app/set_app.sock set_app.asgi:application
+daphne -b 127.0.0.1 -p 8001 set_app.asgi:application
 ```
 
 # Start stop
